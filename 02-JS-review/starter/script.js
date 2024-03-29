@@ -144,28 +144,92 @@ function getBook(id) {
 }
 
 // 1. Destructing the data object
-const book = getBook(1);
-// const title = book.title;
-// title;
+// const book = getBook(1);
+// // const title = book.title;
+// // title;
 
-const { title, author, genres } = book;
-// title;
+// const { title, author, genres } = book;
+// // title;
 
-const [firstGenre, secondaryGenre, ...otherGenres] = genres;
-firstGenre;
-otherGenres;
+// const [firstGenre, secondaryGenre, ...otherGenres] = genres;
+// firstGenre;
+// otherGenres;
 
-const newGenres = [...genres, "new genre"];
+// const newGenres = [...genres, "new genre"];
 
-const updatedBook = {
-  ...book,
-  //Adding a new property and updating an existing one
-  moviePublicationYear: 2022,
-  pages: 1,
+// const updatedBook = {
+//   ...book,
+//   //Adding a new property and updating an existing one
+//   moviePublicationYear: 2022,
+//   pages: 1,
+// };
+
+// console.log(updatedBook);
+
+// // 2. Template literals
+// const summary = `${title} by ${author} is a ${genres.join(", ")} book.`;
+// console.log(summary);
+
+// //3. Ternary operator
+// const hasMovieAdaptation = book.hasMovieAdaptation
+//   ? "has a movie adaptation"
+//   : "does not have a movie adaptation";
+// console.log(hasMovieAdaptation);
+
+// //4. Arrow functions
+// const getSummary = (book) =>
+//   `${book.title} by ${book.author} is a ${book.genres.join(", ")} book.`;
+
+// //5. short circuiting
+// console.log(true && "Hello"); //Hello
+// console.log(false && "Hello"); //false
+// console.log(true || "Hello"); //true
+// console.log(false || "Hello"); //Hello
+// console.log(book.reviews.librarything.reviewsCount ?? "No reviews found"); //0
+
+// //6. Optional chaining
+// function getRatingCount(book) {
+//   return book.reviews?.goodreads?.ratingsCount;
+// }
+// getRatingCount(book);
+
+//7. Map method
+const bookTitles = data.map((book) => book.title);
+console.log(bookTitles);
+
+const essentialBookInfo = data.map((book) => {
+  const { title, author, genres } = book;
+  return { title, author, genres };
+});
+console.log(essentialBookInfo);
+
+//8. Filter method
+const fantasyBooks = data
+  .filter((book) => book.genres.includes("fantasy"))
+  .filter((book) => book.pages > 500);
+console.log(fantasyBooks);
+
+//9. Reduce method
+const totalBooksPages = data.reduce((acc, book) => acc + book.pages, 0);
+console.log(totalBooksPages);
+
+// 10 Sort method
+const sortedBooks = data.sort((a, b) => a.pages - b.pages);
+console.log(sortedBooks);
+
+//11. Immutability
+// a) Adding a new book
+const newBook = {
+  id: 6,
+  title: "The Hobbit",
+  publicationDate: "1937-09-21",
 };
+const updatedData = [...data, newBook];
 
-console.log(updatedBook);
+// b) deleting a book
+const bookAfterDeletion = data.filter((book) => book.id !== 2);
 
-// 2. Template literals
-const summary = `${title} by ${author} is a ${genres.join(", ")} book.`;
-console.log(summary);
+// c) Updating a book
+const updatedBook = data.map((book) =>
+  book.id === 1 ? { ...book, pages: 1000 } : book
+);
