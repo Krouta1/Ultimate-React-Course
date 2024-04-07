@@ -79,18 +79,24 @@ export default function App() {
   function handleAddToWatched(movie) {
     setWatched((prev) => [...prev, movie]);
   }
+  function handleRemoveFromWatched(id) {
+    setWatched((prev) => prev.filter((movie) => movie.imdbID !== id));
+  }
 
   useEffect(() => {
     // fetch(`http://www.omdbapi.com/?apikey=${API_KEY}&s=interstellar`)
     // 	.then(res => res.json())
     // 	.then(data => setMovies(data.Search));
 
+    const controller = new AbortController();
+
     async function fetchMovies() {
       try {
         setIsLoading(true);
         setError('');
         const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${API_KEY}&s=${query}`
+          `http://www.omdbapi.com/?apikey=${API_KEY}&s=${query}`,
+          { signal: controller.signal }
         );
 
         if (!res.ok)
@@ -103,6 +109,7 @@ export default function App() {
 
         setMovies(data.Search);
       } catch (error) {
+        if (error.name === 'AbortError') return;
         setError(error.message);
       } finally {
         setIsLoading(false);
@@ -116,6 +123,10 @@ export default function App() {
     }
 
     fetchMovies();
+
+    return () => {
+      controller.abort();
+    };
   }, [query]);
 
   return (
@@ -139,11 +150,15 @@ export default function App() {
               selectedId={selectedId}
               onCloseMovie={handleCloseMovie}
               onAddToWatched={handleAddToWatched}
+              watched={watched}
             />
           ) : (
             <>
               <WatchedSummary watched={watched} />
-              <WatchedList watched={watched} />
+              <WatchedList
+                watched={watched}
+                onDeleteWatched={handleRemoveFromWatched}
+              />
             </>
           )}
         </Box>

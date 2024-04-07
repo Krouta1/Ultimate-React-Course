@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 
-const WatchedMovie = ({ movie }) => {
+const WatchedMovie = ({ movie, onDeleteWatched }) => {
   return (
     <li key={movie.imdbID}>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
@@ -18,6 +18,12 @@ const WatchedMovie = ({ movie }) => {
           <span>⏳</span>
           <span>{movie.runtime} min</span>
         </p>
+        <button
+          className='btn-delete'
+          onClick={() => onDeleteWatched(movie.imdbID)}
+        >
+          ❌
+        </button>
       </div>
     </li>
   );

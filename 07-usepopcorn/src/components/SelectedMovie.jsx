@@ -3,9 +3,20 @@ import StarRating from './StarRating';
 import Loader from './Loader';
 
 /* eslint-disable react/prop-types */
-const SelectedMovie = ({ selectedId, onCloseMovie, onAddToWatched }) => {
+const SelectedMovie = ({
+  selectedId,
+  onCloseMovie,
+  onAddToWatched,
+  watched = [],
+}) => {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [userRating, setUserRating] = useState('');
+
+  const isWatched = watched.some((movie) => movie.imdbID === selectedId);
+  const watchedUserRating = watched.find(
+    (movie) => movie.imdbID === selectedId
+  )?.userRating;
 
   const {
     Title,
@@ -20,11 +31,13 @@ const SelectedMovie = ({ selectedId, onCloseMovie, onAddToWatched }) => {
   } = movie;
 
   const API_KEY = 'bfa4d512';
+  const controller = new AbortController();
   useEffect(() => {
     async function fetchMovie() {
       setIsLoading(true);
       const res = await fetch(
-        `http://www.omdbapi.com/?apikey=${API_KEY}&i=${selectedId}`
+        `http://www.omdbapi.com/?apikey=${API_KEY}&i=${selectedId}`,
+        { signal: controller.signal }
       );
       const data = await res.json();
       setMovie(data);
@@ -32,6 +45,16 @@ const SelectedMovie = ({ selectedId, onCloseMovie, onAddToWatched }) => {
     }
     fetchMovie();
   }, [selectedId]);
+
+  useEffect(() => {
+    if (!Title) return;
+    document.title = `Movie | ${Title}`;
+
+    return () => {
+      document.title = 'UsePopcorn';
+      controller.abort();
+    };
+  }, [Title]);
 
   function handleAdd() {
     const newWatchedMovie = {
@@ -45,10 +68,27 @@ const SelectedMovie = ({ selectedId, onCloseMovie, onAddToWatched }) => {
       imdbRating: +imdbRating,
       Released,
       Runtime: +Runtime.split(' ').at(0),
+      userRating,
     };
     onAddToWatched(newWatchedMovie);
     onCloseMovie();
   }
+
+  useEffect(() => {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        onCloseMovie();
+      }
+    });
+
+    return () => {
+      document.removeEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          onCloseMovie();
+        }
+      });
+    };
+  }, [onCloseMovie]);
 
   return (
     <div className='details'>
@@ -75,10 +115,23 @@ const SelectedMovie = ({ selectedId, onCloseMovie, onAddToWatched }) => {
           </header>
           <section>
             <div className='rating'>
-              <StarRating maxRating={10} size={24} />
-              <button className='btn-add' onClick={handleAdd}>
-                Add to list
-              </button>
+              {!isWatched ? (
+                <>
+                  {' '}
+                  <StarRating
+                    maxRating={10}
+                    size={24}
+                    onSetRating={setUserRating}
+                  />
+                  {userRating > 0 && (
+                    <button className='btn-add' onClick={handleAdd}>
+                      Add to list
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p>You rated this movie {watchedUserRating}⭐️</p>
+              )}
             </div>
             <p>
               <em>{Plot}</em>
