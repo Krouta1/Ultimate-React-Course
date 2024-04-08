@@ -11,6 +11,8 @@ import WatchedList from './components/WatchedList';
 import Loader from './components/Loader';
 import ErrorMessage from './components/ErrorMessage';
 import SelectedMovie from './components/SelectedMovie';
+import { useMovies } from './hooks/useMovies';
+import { useLocalStorageState } from './hooks/useLocalStorageState';
 
 // const tempWatchedData = [
 // 	{
@@ -60,110 +62,62 @@ import SelectedMovie from './components/SelectedMovie';
 // ];
 
 export default function App() {
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [query, setQuery] = useState('');
-  const [selectedId, setSelectedId] = useState(null);
-  const API_KEY = 'bfa4d512';
+	const [query, setQuery] = useState('');
+	const [selectedId, setSelectedId] = useState(null);
+	const [watched, setWatched] = useLocalStorageState([], 'watched');
 
-  function handleSelectMovie(id) {
-    setSelectedId(selectedId === id ? null : id);
-  }
+	const { movies, isLoading, error } = useMovies(query, handleCloseMovie);
 
-  function handleCloseMovie() {
-    setSelectedId(null);
-  }
+	function handleSelectMovie(id) {
+		setSelectedId(selectedId === id ? null : id);
+	}
 
-  function handleAddToWatched(movie) {
-    setWatched((prev) => [...prev, movie]);
-  }
-  function handleRemoveFromWatched(id) {
-    setWatched((prev) => prev.filter((movie) => movie.imdbID !== id));
-  }
+	function handleCloseMovie() {
+		setSelectedId(null);
+	}
 
-  useEffect(() => {
-    // fetch(`http://www.omdbapi.com/?apikey=${API_KEY}&s=interstellar`)
-    // 	.then(res => res.json())
-    // 	.then(data => setMovies(data.Search));
+	function handleAddToWatched(movie) {
+		setWatched(prev => [...prev, movie]);
+		// localStorage.setItem('watched', JSON.stringify([...watched, movie])); // need to build array coz of stale state
+	}
+	function handleRemoveFromWatched(id) {
+		setWatched(prev => prev.filter(movie => movie.imdbID !== id));
+	}
 
-    const controller = new AbortController();
-
-    async function fetchMovies() {
-      try {
-        setIsLoading(true);
-        setError('');
-        const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${API_KEY}&s=${query}`,
-          { signal: controller.signal }
-        );
-
-        if (!res.ok)
-          throw new Error('Something went wrong with fetching movies');
-
-        const data = await res.json();
-
-        if (data.Response === 'False')
-          throw new Error('No movies were found. Please try again.');
-
-        setMovies(data.Search);
-      } catch (error) {
-        if (error.name === 'AbortError') return;
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    if (query.length < 3) {
-      setMovies([]);
-      setError('');
-      return;
-    }
-
-    handleCloseMovie();
-    fetchMovies();
-
-    return () => {
-      controller.abort();
-    };
-  }, [query]);
-
-  return (
-    <>
-      <Navbar>
-        <Logo />
-        <Search query={query} setQuery={setQuery} />
-        <NumResults movies={movies} />
-      </Navbar>
-      <Main>
-        <Box>
-          {isLoading && !error && <Loader movies={movies} />}
-          {error && <ErrorMessage message={error} />}
-          {!isLoading && !error && (
-            <MovieList movies={movies} onSelectMovie={handleSelectMovie} />
-          )}
-        </Box>
-        <Box>
-          {selectedId ? (
-            <SelectedMovie
-              selectedId={selectedId}
-              onCloseMovie={handleCloseMovie}
-              onAddToWatched={handleAddToWatched}
-              watched={watched}
-            />
-          ) : (
-            <>
-              <WatchedSummary watched={watched} />
-              <WatchedList
-                watched={watched}
-                onDeleteWatched={handleRemoveFromWatched}
-              />
-            </>
-          )}
-        </Box>
-      </Main>
-    </>
-  );
+	return (
+		<>
+			<Navbar>
+				<Logo />
+				<Search query={query} setQuery={setQuery} />
+				<NumResults movies={movies} />
+			</Navbar>
+			<Main>
+				<Box>
+					{isLoading && !error && <Loader movies={movies} />}
+					{error && <ErrorMessage message={error} />}
+					{!isLoading && !error && (
+						<MovieList movies={movies} onSelectMovie={handleSelectMovie} />
+					)}
+				</Box>
+				<Box>
+					{selectedId ? (
+						<SelectedMovie
+							selectedId={selectedId}
+							onCloseMovie={handleCloseMovie}
+							onAddToWatched={handleAddToWatched}
+							watched={watched}
+						/>
+					) : (
+						<>
+							<WatchedSummary watched={watched} />
+							<WatchedList
+								watched={watched}
+								onDeleteWatched={handleRemoveFromWatched}
+							/>
+						</>
+					)}
+				</Box>
+			</Main>
+		</>
+	);
 }
