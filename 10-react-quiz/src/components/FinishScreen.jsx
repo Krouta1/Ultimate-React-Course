@@ -1,30 +1,29 @@
 /* eslint-disable react/prop-types */
+function FinishScreen({ points, maxPossiblePoints, highscore, dispatch }) {
+  const percentage = (points / maxPossiblePoints) * 100;
 
-const FinishScreen = ({ points, maxPossiblePoints, highScore, dispatch }) => {
-	const precentage = (points / maxPossiblePoints) * 100;
-	let emoji;
+  let emoji;
+  if (percentage === 100) emoji = '🥇';
+  if (percentage >= 80 && percentage < 100) emoji = '🎉';
+  if (percentage >= 50 && percentage < 80) emoji = '🙃';
+  if (percentage >= 0 && percentage < 50) emoji = '🤨';
+  if (percentage === 0) emoji = '🤦‍♂️';
 
-	if (precentage === 100) emoji = '💰';
-	else if (precentage >= 80 && precentage < 100) emoji = '🪩';
-	else if (precentage >= 50 && precentage < 80) emoji = '😊';
-	else if (precentage >= 0 && precentage < 50) emoji = '🧐';
-	if (precentage === 0) emoji = '🤦';
-
-	return (
-		<>
-			<p className="result">
-				<span>{emoji}</span> You scored <strong>{points}</strong> out of{' '}
-				{maxPossiblePoints} ({Math.ceil(precentage)}%).
-			</p>
-			<p className="highscore">(Highscore: {highScore} points)</p>
-			<button
-				className="btn btn-ui"
-				onClick={() => dispatch({ type: 'dataReceived' })}
-			>
-				Restart quiz
-			</button>
-		</>
-	);
-};
+  return (
+    <>
+      <p className='result'>
+        <span>{emoji}</span> You scored <strong>{points}</strong> out of{' '}
+        {maxPossiblePoints} ({Math.ceil(percentage)}%)
+      </p>
+      <p className='highscore'>(Highscore: {highscore} points)</p>
+      <button
+        className='btn btn-ui'
+        onClick={() => dispatch({ type: 'restart' })}
+      >
+        Restart quiz
+      </button>
+    </>
+  );
+}
 
 export default FinishScreen;
