@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useReducer } from 'react';
+import { useCallback, useReducer } from 'react';
 import { useContext } from 'react';
 import { useEffect } from 'react';
 import { createContext } from 'react';
@@ -67,18 +67,22 @@ function CitiesProvider({ children }) {
     fetchCities();
   }, []);
 
-  async function findCityById(id) {
-    try {
-      dispatch({ type: 'loading' });
-      const res = await fetch(`${BASE_URL}/cities/${id}`);
-      const data = await res.json();
-      dispatch({ type: 'city/loaded', payload: data });
-    } catch {
-      throw new Error('Data not found.');
-    } finally {
-      dispatch({ type: 'rejected', payload: 'Data not found.' });
-    }
-  }
+  const findCityById = useCallback(
+    async function findCityById(id) {
+      if (Number(id) === currentCity.id) return;
+      try {
+        dispatch({ type: 'loading' });
+        const res = await fetch(`${BASE_URL}/cities/${id}`);
+        const data = await res.json();
+        dispatch({ type: 'city/loaded', payload: data });
+      } catch {
+        throw new Error('Data not found.');
+      } finally {
+        dispatch({ type: 'rejected', payload: 'Data not found.' });
+      }
+    },
+    [currentCity.id]
+  );
 
   async function createCity(newCity) {
     try {
