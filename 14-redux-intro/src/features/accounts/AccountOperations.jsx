@@ -10,7 +10,6 @@ function AccountOperations() {
   const [currency, setCurrency] = useState('USD');
   const dispatch = useDispatch();
   const account = useSelector((store) => store.account);
-  console.log(account);
 
   function handleDeposit() {
     if (!depositAmount) return;
