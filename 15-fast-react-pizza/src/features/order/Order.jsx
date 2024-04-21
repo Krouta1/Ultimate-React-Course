@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // Test ID: IIDSAT
 
 import {
@@ -50,6 +51,7 @@ function Order() {
     priorityPrice,
     orderPrice,
     estimatedDelivery,
+    // eslint-disable-next-line no-unused-vars
     cart,
   } = order;
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
