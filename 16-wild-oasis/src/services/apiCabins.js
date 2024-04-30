@@ -22,7 +22,9 @@ export async function createCabin(newCabin) {
   //1. Create a new cabin
   const { data, error } = await supabase
     .from("cabins")
-    .insert([{ ...newCabin, image: imagePath }]);
+    .insert([{ ...newCabin, image: imagePath }])
+    .select()
+    .single();
 
   if (error) {
     console.log("Could not create cabin", error.message);
