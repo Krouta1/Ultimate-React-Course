@@ -2,9 +2,10 @@
 /* eslint-disable no-unused-vars */
 import styled from 'styled-components';
 import { formatCurrency } from '../../utils/helpers';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteCabin } from '../../services/apiCabins';
-import toast from 'react-hot-toast';
+import { useDeleteCabin } from './useDeleteCabin';
+import { HiPencil, HiTrash } from 'react-icons/hi';
+import { HiSquare2Stack } from 'react-icons/hi2';
+import { useCreateCabin } from './useCreateCabin';
 
 const TableRow = styled.div`
   display: grid;
@@ -53,18 +54,22 @@ const CabinRow = ({ cabin }) => {
     maxCapacity,
     regularPrice,
     discount,
+    description,
   } = cabin;
-  const queryClient = useQueryClient();
-  const { isLoading: isDeleting, mutate } = useMutation({
-    mutationFn: (id) => deleteCabin(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cabins'] });
-      toast.success('Cabin deleted successfully.');
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+
+  const { isDeleting, deleteCabin } = useDeleteCabin();
+  const { isCreating, createCabin } = useCreateCabin();
+
+  function handleDuplicate() {
+    createCabin({
+      name: `${name} (copy)`,
+      image,
+      maxCapacity,
+      regularPrice,
+      discount,
+      description,
+    });
+  }
 
   return (
     <TableRow role='row'>
@@ -72,15 +77,24 @@ const CabinRow = ({ cabin }) => {
       <Cabin>{name}</Cabin>
       <div>Fits up to {maxCapacity} guests.</div>
       <Price>{formatCurrency(regularPrice)}</Price>
-      <Discount>{formatCurrency(discount)}</Discount>
+      {discount ? (
+        <Discount>{formatCurrency(discount)}</Discount>
+      ) : (
+        <span>&mdash;</span>
+      )}
       <div>
-        <button>Edit</button>
+        <button disabled={isCreating} onClick={handleDuplicate}>
+          <HiSquare2Stack />
+        </button>
+        <button>
+          <HiPencil />
+        </button>
         <button
           type='button'
-          onClick={() => mutate(cabinId)}
+          onClick={() => deleteCabin(cabinId)}
           disabled={isDeleting}
         >
-          Delete
+          <HiTrash />
         </button>
       </div>
     </TableRow>
