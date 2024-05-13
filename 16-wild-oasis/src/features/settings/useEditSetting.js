@@ -9,12 +9,12 @@ export function useEditSetting() {
   const { mutate: updateSetting, isLoading: isUpdating } = useMutation({
     mutationFn: updateSettingApi,
     onSuccess: () => {
-      toast.success("Cabin successfully edited!");
+      toast.success("Settings successfully edited!");
       queryClient.invalidateQueries({ queryKey: ["settings"] });
     },
     onError: (error) => {
-      toast.error("Could not create cabin");
-      console.error("Could not create cabin", error);
+      toast.error("Could not create settings ");
+      console.error("Could not create settings ", error);
     },
   });
 
