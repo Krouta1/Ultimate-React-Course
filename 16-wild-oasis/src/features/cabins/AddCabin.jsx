@@ -8,14 +8,16 @@ import React from 'react';
 
 const AddCabin = () => {
   return (
-    <Modal>
-      <Modal.Button opens='cabin-form'>
-        <Button>Add new cabin</Button>
-      </Modal.Button>
-      <Modal.Window name='cabin-form'>
-        <CreateCabinForm />
-      </Modal.Window>
-    </Modal>
+    <div>
+      <Modal>
+        <Modal.Button opens='cabin-form'>
+          <Button>Add new cabin</Button>
+        </Modal.Button>
+        <Modal.Window name='cabin-form'>
+          <CreateCabinForm />
+        </Modal.Window>
+      </Modal>
+    </div>
   );
 };
 
