@@ -14,7 +14,7 @@ function Cabins() {
     <>
       <Row type='horizontal'>
         <Heading as='h1'>All cabins</Heading>
-        <p>Fliter / Sort</p>
+        <p> Fliter / Sort</p>
       </Row>
       <Row>
         <CabinTable />
